@@ -13,13 +13,24 @@ static size_t memory = 0;
 
 void* mt_malloc(size_t size){
     void* location = malloc(size);
-
     if (location == NULL){
         printf("MAlloc failed");
         return NULL;
     }
 
-    printf("Allocated %zu bytes to %p\n", size, location);
+    Allocation* new_allocs = realloc(allocs, (count + 1) * sizeof(Allocation));
+    if (new_allocs == NULL){
+        free(location);
+        printf("Failed to track allocation");
+        return NULL;
+    }
+    
+    allocs = new_allocs;
+    allocs[count].ptr = location;
+    allocs[count].size = size;
+    memory += size;
+    count++;
+    printf("Allocated %zu bytes to %p (total: %zu)\n", size, location, memory);
     return location;
 }
 
@@ -28,8 +39,21 @@ void mt_free(void* ptr){
         printf("invalid input!!!!");
         return;
     }
-    printf("WE are freeing %p\n", ptr);
-    free(ptr);
+
+    for (size_t i =0; i < count; i++){
+        if (allocs[i].ptr == ptr){
+            memory -= allocs[i].size;
+
+            for (size_t j = i; j < count-1; j++){
+                allocs[j] = allocs[j+1];
+            }
+            count--;
+            free(ptr);
+            printf("WE freed %p\n", ptr);
+            return;
+        }
+    }
+    printf("Pointer %p not found in tracking\n", ptr);
 }
 
 int main(){
