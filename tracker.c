@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct{
-    void* ptr;
-    size_t size;
-} Allocation;
+#include "tracker.h"
 
 static Allocation* allocs = NULL;
 static size_t count = 0;
