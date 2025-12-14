@@ -60,9 +60,9 @@ void mt_free_impl(void* ptr, const char* file, int line){
             } else {
                 // double free
                 printf("Yooo this is a double free of %p at %s:%d sort this out", ptr, file, line);
-                printf(" this was allocated at %s:%d (id=%zu, size=%zu)\n",
+                printf(" this was allocated at %s:%d (id=%zu, size=%zu)",
                      allocs[i].alloc_file, allocs[i].alloc_line, allocs[i].id, allocs[i].size);
-                
+                printf(" first freed at %s:%d\n", allocs[i].free_file, allocs[i].free_line);
                 return;
             }
         }
@@ -72,8 +72,16 @@ void mt_free_impl(void* ptr, const char* file, int line){
 }
 
 void mt_print_stats(){
-    printf("You have used a total of %zu\n", bytes_in_use);
-    for (size_t i=0; i<count; i++){
-        printf("Pointer %p contain %zu memory\n", allocs[i].ptr, allocs[i].size);
+    printf("Total bytes in use: %zu\n", bytes_in_use);
+    printf("Total allocations ever: %zu\n", count);
+    for (size_t i = 0; i < count; i++){
+        const char* state_str = (allocs[i].state == MT_LIVE) ? "LIVE" : "FREED";
+        printf("[%s] ID %zu: %p (%zu bytes) alloc at %s:%d", 
+               state_str, allocs[i].id, allocs[i].ptr, allocs[i].size, 
+               allocs[i].alloc_file, allocs[i].alloc_line);
+        if (allocs[i].state == MT_FREED) {
+            printf(" - freed at %s:%d", allocs[i].free_file, allocs[i].free_line);
+        }
+        printf("\n");
     }
-}  
+}
