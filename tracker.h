@@ -12,4 +12,6 @@ void* mt_malloc(size_t size);
 
 void mt_free(void* ptr);
 
+void mt_print_stats();
+
 #endif

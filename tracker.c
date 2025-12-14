@@ -52,10 +52,9 @@ void mt_free(void* ptr){
     printf("Pointer %p not found in tracking\n", ptr);
 }
 
-int main(){
-    int* a = mt_malloc(4 * sizeof(int));
-    a[0] = 42;
-    printf("%d\n", a[0]);
-    mt_free(a);
-    return 0;
-}
+void mt_print_stats(){
+    printf("You have used a total of %zu\n", memory);
+    for (int i=0; i<count; i++){
+        printf("Pointer %p contain %zu memory\n", allocs[i].ptr, allocs[i].size);
+    }
+}  
